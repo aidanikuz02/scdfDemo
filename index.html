@@ -20,7 +20,7 @@
       <div id="unity-footer">
         <div id="unity-webgl-logo"></div>
         <div id="unity-fullscreen-button"></div>
-        <div id="unity-build-title">SCDF Demo</div>
+        <div id="unity-build-title"></div>
       </div>
     </div>
     <script>
@@ -30,7 +30,9 @@
       var loadingBar = document.querySelector("#unity-loading-bar");
       var progressBarFull = document.querySelector("#unity-progress-bar-full");
       var fullscreenButton = document.querySelector("#unity-fullscreen-button");
-      var warningBanner = document.querySelector("#unity-warning");
+
+      var canvasHeight;
+      var canvasWidth;
 
       // Shows a temporary message banner/ribbon for a few seconds, or
       // a permanent error message on top of the canvas if type=='error'.
@@ -38,35 +40,34 @@
       // Modify or remove this function to customize the visually presented
       // way that non-critical warnings and error messages are presented to the
       // user.
-      function unityShowBanner(msg, type) {
-        function updateBannerVisibility() {
-          warningBanner.style.display = warningBanner.children.length ? 'block' : 'none';
-        }
-        var div = document.createElement('div');
-        div.innerHTML = msg;
-        warningBanner.appendChild(div);
-        if (type == 'error') div.style = 'background: red; padding: 10px;';
-        else {
-          if (type == 'warning') div.style = 'background: yellow; padding: 10px;';
-          setTimeout(function() {
-            warningBanner.removeChild(div);
-            updateBannerVisibility();
-          }, 5000);
-        }
-        updateBannerVisibility();
-      }
+      // function unityShowBanner(msg, type) {
+      //   function updateBannerVisibility() {
+      //     warningBanner.style.display = warningBanner.children.length ? 'block' : 'none';
+      //   }
+      //   var div = document.createElement('div');
+      //   div.innerHTML = msg;
+      //   warningBanner.appendChild(div);
+      //   if (type == 'error') div.style = 'background: red; padding: 10px;';
+      //   else {
+      //     if (type == 'warning') div.style = 'background: yellow; padding: 10px;';
+      //     setTimeout(function() {
+      //       warningBanner.removeChild(div);
+      //       updateBannerVisibility();
+      //     }, 5000);
+      //   }
+      //   updateBannerVisibility();
+      // }
 
       var buildUrl = "Build";
-      var loaderUrl = buildUrl + "/v0.1.4.loader.js";
+      var loaderUrl = buildUrl + "/v0.1.5.loader.js";
       var config = {
-        dataUrl: buildUrl + "/0d1a0f109963552f8416d643fa1fd4b5.data",
+        dataUrl: buildUrl + "/db60d36fd5db94389bba9eb3321105a9.data",
         frameworkUrl: buildUrl + "/6a4dcd4d79a14ede7ff396df868ec5d8.js",
         codeUrl: buildUrl + "/97036bb1fea92e6d935cf7126d3f2372.wasm",
-        streamingAssetsUrl: "StreamingAssets",
+        streamingAssetsUrl: "{{project.baseUrl}}/StreamingAssets",
         companyName: "Entropia",
         productName: "SCDF Demo",
-        productVersion: "0.1.4",
-        showBanner: unityShowBanner,
+        productVersion: "0.1.5",
       };
 
       // By default, Unity keeps WebGL canvas render target size matched with
@@ -79,22 +80,31 @@
       if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
         // Mobile device style: fill the whole browser client area with the game canvas:
 
-        var meta = document.createElement('meta');
-        meta.name = 'viewport';
-        meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
-        document.getElementsByTagName('head')[0].appendChild(meta);
+        // var meta = document.createElement('meta');
+        // meta.name = 'viewport';
+        // meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
+        // document.getElementsByTagName('head')[0].appendChild(meta);
         container.className = "unity-mobile";
-        canvas.className = "unity-mobile";
+        // canvas.className = "unity-mobile";
 
         // To lower canvas resolution on mobile devices to gain some
         // performance, uncomment the following line:
         // config.devicePixelRatio = 1;
 
+        var iOS = /iPad|iPhone|iPod/.test(navigaor.userAgent) && !window.MSStream;
+
+        if(iOS){
+          config.devicePixelRatio = 2;
+        }
+        else {
+          config.devicePixelRatio = window.devicePixelRatio;
+        }
+
       } else {
         // Desktop style: Render the game canvas in a window that can be maximized to fullscreen:
 
-        canvas.style.width = "1920px";
-        canvas.style.height = "1080px";
+        canvas.style.width = "100%";
+        canvas.style.height = "100%";
       }
 
       loadingBar.style.display = "block";
